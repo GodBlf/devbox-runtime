@@ -18,7 +18,17 @@ The source implementation, localized runtime images, smoke coverage, and conform
 | Static Alpine source paths | PASS | Base Dockerfile/build script, runtime Dockerfile/build script, localized READMEs, entrypoint, and smoke script exist under the planned `alpine/3.22` paths. |
 | Runtime build planner | PASS | `python3 .github/scripts/runtime-build.py plan-build --target-kind operating-systems --target-name alpine/3.22 --target-build-type runtime-images --include-prerequisites true` resolved Alpine base and runtime targets. |
 | Runtime conformance planner | PASS | `python3 .github/scripts/runtime-conformance.py plan --tag alpine-test --kind operating-systems --name alpine/3.22 --l10n both --arch amd64` returned `runtime_count=1` and `job_count=2` for `en_US` and `zh_CN`. |
-| Workflow scope | PASS | No `.github/workflows` files were modified. |
+| Workflow scope | PASS | No fork-only workflow behavior is required. `.github/workflows/build-runtime-images.yaml` and `.github/actions/generate-image-names/action.yml` normalize the GHCR owner to lowercase so image tags are valid for mixed-case forks while preserving behavior for the lowercase upstream owner. |
+
+## GitHub Actions Evidence
+
+| Workflow | Result | Run | Notes |
+| --- | --- | --- | --- |
+| Build Runtime Images | PASS | https://github.com/GodBlf/devbox-runtime/actions/runs/28932200191 | Ran on branch `codex/alpine-runtime-template` at commit `95c372679238e479791fb4ce8948834fd60852cc` with tag `alpine-ci-95c3726`, target `runtime/os/alpine/3.22`, `l10n=both`, and `arch=both`. Tooling, Alpine base images, Alpine runtime images, and manifests all completed successfully. |
+| Test Runtime Smoke | PASS | https://github.com/GodBlf/devbox-runtime/actions/runs/28932414704 | Ran on branch `codex/alpine-runtime-template` at commit `95c372679238e479791fb4ce8948834fd60852cc` with tag `alpine-ci-95c3726`, `kind=operating-systems`, and `name=alpine/3.22`. The Alpine smoke job completed successfully for `en_US` on `amd64` and `arm64`. |
+| Runtime Image Conformance | PASS | https://github.com/GodBlf/devbox-runtime/actions/runs/28932414169 | Ran on branch `codex/alpine-runtime-template` at commit `95c372679238e479791fb4ce8948834fd60852cc` with tag `alpine-ci-95c3726`, `kind=operating-systems`, `name=alpine/3.22`, `l10n=both`, and `arch=both`. All four jobs passed: `en_US/amd64`, `en_US/arm64`, `zh_CN/amd64`, and `zh_CN/arm64`. |
+
+CI note: an initial fork run failed before image build because `github.repository_owner` was `GodBlf`, producing invalid uppercase GHCR image paths such as `ghcr.io/GodBlf/...`. The workflow/action fix lowercases only the GHCR namespace used in image names and build args. The successful runs above prove the corrected path.
 
 ## Image Build Evidence
 
@@ -29,7 +39,7 @@ The source implementation, localized runtime images, smoke coverage, and conform
 | `linux/amd64` | `en_US` | PASS | PASS | `alpine-test-amd64-en-us` |
 | `linux/amd64` | `zh_CN` | PASS | PASS | `alpine-test-amd64-zh-cn` |
 
-Local build note: the Alpine base image depends on the updated shared tooling image so local validation first built local tooling tags for the relevant platform.
+Local build note: the Alpine base image depends on the updated shared tooling image so local validation first built local tooling tags for the relevant platform. GitHub Actions validation additionally built and pushed both `amd64` and `arm64` images and manifests under tag `alpine-ci-95c3726`.
 
 ## Runtime Validation Evidence
 
@@ -89,4 +99,4 @@ Frontend-only items are explicitly skipped for this backend/runtime-only handoff
 
 ## Final Local Conclusion
 
-The Alpine 3.22 runtime implementation is validated as a release candidate for the backend/runtime scope: Docker image build, startup, package-manager, smoke, and conformance behavior across `en_US` and `zh_CN` and across `arm64` and `amd64` local test coverage. A real DevBox controller also created and started temporary Alpine DevBoxes successfully, with writable workspace, working `apk`, ready sshd, SSHGate network sync, product-managed external SSH access, and VS Code Web listening on port `9999`. Frontend template-catalog selection and browser web-terminal access were intentionally skipped because this handoff is scoped to backend/runtime work only.
+The Alpine 3.22 runtime implementation is validated as a release candidate for the backend/runtime scope: Docker image build, startup, package-manager, smoke, and conformance behavior across `en_US` and `zh_CN` and across `arm64` and `amd64` local and GitHub Actions coverage. A real DevBox controller also created and started temporary Alpine DevBoxes successfully, with writable workspace, working `apk`, ready sshd, SSHGate network sync, product-managed external SSH access, and VS Code Web listening on port `9999`. Frontend template-catalog selection and browser web-terminal access were intentionally skipped because this handoff is scoped to backend/runtime work only.
