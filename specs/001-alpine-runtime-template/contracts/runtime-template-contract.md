@@ -4,6 +4,8 @@
 
 This contract defines the observable behavior required for the Alpine operating-system runtime template. It is used by implementation, smoke tests, conformance tests, and release validation.
 
+Scope note: this contract is for the backend/runtime handoff. Frontend template-catalog UI validation and browser web-terminal validation are explicitly out of scope; backend/controller creation, SSH, shell access, workspace, package-manager, localization, conformance, and code-editing access evidence remain in scope.
+
 ## Source Layout Contract
 
 The feature must provide these files:
@@ -129,13 +131,13 @@ Conformance checks must verify:
 - legacy smoke script execution as `devbox`.
 - no unregistered-runtime outcome.
 
-Real DevBox validation must verify:
+Backend/runtime DevBox validation must verify:
 
-- Alpine appears in the template catalog.
-- A DevBox can be created from Alpine.
+- A DevBox can be created through the product controller using the Alpine runtime image.
 - The instance does not crash-loop.
-- Web terminal works.
+- Backend shell access works through controller-supported mechanisms such as pod exec or SSH.
 - SSH works.
 - `/home/devbox/project` is writable.
 - `apk` can install and run a small package.
 - VS Code Server-style access has a recorded pass, limitation, or product-approved exception.
+- Frontend template-catalog UI and browser web-terminal behavior are recorded as scope-skipped for this backend/runtime handoff.

@@ -6,7 +6,7 @@
 - Repository root as current working directory.
 - Access to build or pull the DevBox tooling image used by existing OS runtime builds.
 - Optional remote validation host: `root@192.168.10.230`.
-- For full release validation, access to a real DevBox environment where templates can be selected and created.
+- For backend/runtime release validation, access to a real DevBox environment where the product controller can create a DevBox from the Alpine runtime image.
 
 Use this baseline unless product confirms another Alpine release before implementation:
 
@@ -246,18 +246,18 @@ Expected outcome:
 - Alpine package manager works.
 - Compatibility and access prerequisites are installed.
 
-## 9. Real DevBox Validation
+## 9. Real DevBox Backend/Runtime Validation
 
-Validate in the product environment before release:
+Validate in the product environment before backend/runtime handoff:
 
-- Alpine appears in the DevBox template catalog.
-- Selecting Alpine creates a DevBox successfully.
+- A DevBox can be created through the product controller using the Alpine runtime image.
 - First startup does not crash-loop.
-- Web terminal opens.
+- Backend shell access works through pod exec or SSH.
 - SSH connects.
 - `/home/devbox/project` is writable.
 - `apk add` works for a small package.
 - Starter README language matches the selected locale.
+- Frontend template-catalog UI and browser web-terminal validation are scope-skipped for this backend/runtime-only request.
 - VS Code Server-style access has an explicit result: pass, limitation, or product-approved exception.
 
 Expected outcome:

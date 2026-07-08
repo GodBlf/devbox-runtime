@@ -138,7 +138,7 @@
 - `conformance_results`: locale-specific conformance outcomes
 - `startup_result`: s6/sshd running-container outcome
 - `package_manager_result`: Alpine package-manager install/use outcome
-- `real_devbox_result`: template catalog, create, terminal, SSH, workspace, and code-editing access outcome
+- `real_devbox_result`: product-controller create, startup, backend shell access, SSH, workspace, package-manager, and code-editing access outcome; frontend catalog and browser web-terminal UI validation are scope-skipped for this backend/runtime handoff
 
 **Relationships**:
 
@@ -156,10 +156,10 @@
 
 **Fields**:
 
-- `web_terminal`: `pass`, `blocked`, or `limited`
+- `web_terminal`: `pass`, `blocked`, `limited`, or `scope-skipped`
 - `ssh`: `pass`, `blocked`, or `limited`
 - `vscode_server_style_access`: `pass`, `blocked`, `limited`, or `not-applicable`
-- `limitation_notes`: required when any access path is not `pass`
+- `limitation_notes`: required when any in-scope access path is not `pass`, or when an access path is `scope-skipped`
 - `product_approval`: required when releasing with limitations
 
 **Relationships**:
@@ -169,5 +169,5 @@
 
 **Validation Rules**:
 
-- Must be explicit before release.
+- Must be explicit before release or backend/runtime handoff.
 - Must not claim support for VS Code Server-style access without real DevBox validation evidence.

@@ -93,16 +93,16 @@
 
 ## Phase 5: User Story 3 - Resolve Alpine Compatibility Risk (Priority: P3)
 
-**Goal**: Support and product stakeholders have explicit evidence for Alpine web terminal, SSH, package-manager, and VS Code Server-style access before release.
+**Goal**: Support and product stakeholders have explicit backend/runtime evidence for Alpine shell access, SSH, package-manager, and VS Code Server-style access before handoff. Frontend catalog and browser web-terminal validation are scope-skipped for this backend-only request.
 
-**Independent Test**: Review the validation evidence file and confirm it records pass, limitation, or product-approved exception for every required access path.
+**Independent Test**: Review the validation evidence file and confirm it records pass, limitation, product-approved exception, or scope-skipped status for every required access path.
 
 ### Implementation and Validation for User Story 3
 
 - [X] T034 [P] [US3] Create compatibility evidence template for web terminal, SSH, apk install, startup, and VS Code Server-style access in specs/001-alpine-runtime-template/validation-evidence.md
 - [X] T035 [US3] Run s6 and sshd container startup validation from specs/001-alpine-runtime-template/quickstart.md and record results in specs/001-alpine-runtime-template/validation-evidence.md
 - [X] T036 [US3] Run Alpine package-manager and compatibility package validation from specs/001-alpine-runtime-template/quickstart.md and record results in specs/001-alpine-runtime-template/validation-evidence.md
-- [X] T037 [US3] Validate Alpine template creation in the real DevBox product environment and record catalog, create, startup, terminal, SSH, workspace, and apk results in specs/001-alpine-runtime-template/validation-evidence.md
+- [X] T037 [US3] Validate Alpine backend/runtime creation in the real DevBox product environment and record scope-skipped frontend catalog/web-terminal status plus controller create, startup, backend shell access, SSH, workspace, and apk results in specs/001-alpine-runtime-template/validation-evidence.md
 - [X] T038 [US3] Validate VS Code Server-style access or equivalent DevBox code-editing access and record pass, limitation, or product-approved exception in specs/001-alpine-runtime-template/validation-evidence.md
 
 **Checkpoint**: User Story 3 is independently functional when `validation-evidence.md` contains an explicit release decision for each required access path.
