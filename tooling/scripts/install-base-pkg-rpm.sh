@@ -31,6 +31,7 @@ fi
 
 "$PM" install -y \
     bash \
+    binutils \
     busybox \
     ca-certificates \
     cpio \
@@ -50,6 +51,7 @@ fi
     shadow \
     sudo \
     tar \
+    unzip \
     util-linux \
     vim-enhanced \
     wget \
