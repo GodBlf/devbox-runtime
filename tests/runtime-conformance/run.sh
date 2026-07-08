@@ -599,6 +599,9 @@ check_runtime_specifics() {
     operating-systems/anolis/23.4)
       check_os_runtime anolis
       ;;
+    operating-systems/fedora/44)
+      check_os_runtime fedora
+      ;;
     operating-systems/debian/12.6)
       check_os_runtime debian
       ;;

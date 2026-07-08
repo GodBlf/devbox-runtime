@@ -32,6 +32,8 @@ set_sshd_config 'PasswordAuthentication no'
 set_sshd_config 'PubKeyAuthentication yes'
 set_sshd_config 'PermitRootLogin prohibit-password'
 set_sshd_config 'PermitEmptyPasswords no'
+chmod 0644 "$SSHD_CONFIG"
+ssh-keygen -A
 mkdir -p /run/sshd && chmod 755 /run/sshd
 
 # sshd service
