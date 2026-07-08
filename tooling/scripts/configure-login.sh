@@ -4,6 +4,8 @@ UTMP_GROUP=utmp
 if ! getent group "$UTMP_GROUP" >/dev/null 2>&1; then
 	UTMP_GROUP=root
 fi
+install -d /etc/logrotate.d
+
 # Override wtmp rotation
 cat > /etc/logrotate.d/wtmp <<EOF
 /var/log/wtmp {
@@ -27,6 +29,7 @@ EOF
 
 
 # Ensure /run/utmp exists with secure permissions (some tools expect it)
+install -d /run
 if [ ! -e /run/utmp ]; then
 	: > /run/utmp
 	chmod 664 /run/utmp

@@ -13,6 +13,9 @@ elif command -v yum >/dev/null 2>&1; then
     yum clean all
     rm -rf /var/cache/yum
 fi
+if command -v apk >/dev/null 2>&1; then
+    rm -rf /var/cache/apk/*
+fi
 
 # Clear bash history
 rm -rf /root/.bash_history

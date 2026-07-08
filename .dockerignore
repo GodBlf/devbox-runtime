@@ -1,0 +1,12 @@
+.git/
+.github/
+.specify/
+specs/
+**/.DS_Store
+**/Thumbs.db
+**/*.tmp
+**/*.log
+**/*.log.*
+**/node_modules/
+generated/
+migrated_repos/

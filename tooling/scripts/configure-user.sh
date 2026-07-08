@@ -34,7 +34,12 @@ echo "$DEFAULT_USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 # Change the password of user devbox
 # The password is randomly generated and not logged or stored for security reasons.
 # SSH key-based authentication is required, as password authentication is disabled in sshd_config.
-PASS=$(openssl rand -base64 16) && echo "$DEFAULT_USER:$PASS" | chpasswd
+if command -v openssl >/dev/null 2>&1; then
+    PASS=$(openssl rand -base64 16)
+else
+    PASS=$(head -c 24 /dev/urandom | base64)
+fi
+echo "$DEFAULT_USER:$PASS" | chpasswd
 # Change the home directory permissions
 chmod -R 770 "/home/$DEFAULT_USER/"
 # Create SSH directory for user devbox

@@ -1,4 +1,6 @@
 /.vscode
+.DS_Store
+Thumbs.db
 # 生成的文件
 generated/
 *.bak
@@ -7,6 +9,7 @@ bin
 # 临时文件
 *.tmp
 *.log
+*.log.*
 
 # IDE 文件
 .idea/

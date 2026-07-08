@@ -10,6 +10,8 @@ if ! getent group "$LOG_GROUP" >/dev/null 2>&1; then
 fi
 # Configure sshd
 SSHD_CONFIG=/etc/ssh/sshd_config
+install -d "$(dirname "$SSHD_CONFIG")"
+touch "$SSHD_CONFIG"
 
 set_sshd_config() {
 	local key value

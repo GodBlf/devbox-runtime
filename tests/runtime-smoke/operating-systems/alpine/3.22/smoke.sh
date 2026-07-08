@@ -1,0 +1,135 @@
+#!/bin/bash
+set -eu
+
+project_dir=/home/devbox/project
+
+if [ ! -d "$project_dir" ]; then
+  echo "Missing project dir: $project_dir" >&2
+  exit 1
+fi
+
+# load profile env (best effort)
+set +u
+[ -f /etc/profile ] && . /etc/profile || true
+if [ -d /etc/profile.d ]; then
+  for f in /etc/profile.d/*.sh; do
+    [ -r "$f" ] && . "$f" || true
+  done
+fi
+[ -f /home/devbox/.bashrc ] && . /home/devbox/.bashrc || true
+set -u
+
+if [ "${SMOKE_DEBUG:-}" = "1" ]; then
+  echo "SMOKE_DEBUG=1"
+  echo "user=$(id -un) uid=$(id -u) gid=$(id -g)"
+  echo "HOME=$HOME"
+  echo "SHELL=${SHELL:-}"
+  echo "PATH=$PATH"
+  for cmd in apk busybox bash sudo curl wget git python3 tar gzip unzip zip ssh; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+      echo "cmd:$cmd=$(command -v "$cmd")"
+    else
+      echo "cmd:$cmd=missing"
+    fi
+  done
+fi
+
+if ! grep -qi alpine /etc/os-release; then
+  echo "Expected Alpine in /etc/os-release" >&2
+  exit 1
+fi
+
+if ! grep -Eq 'VERSION_ID="?3[.]22"?' /etc/os-release; then
+  echo "Expected Alpine 3.22 in /etc/os-release" >&2
+  exit 1
+fi
+
+if ! id devbox >/dev/null 2>&1; then
+  echo "User devbox not found" >&2
+  exit 1
+fi
+
+if [ ! -f "$project_dir/README.md" ]; then
+  echo "Missing README.md in $project_dir" >&2
+  exit 1
+fi
+
+if [ ! -f "$project_dir/entrypoint.sh" ]; then
+  echo "Missing entrypoint.sh in $project_dir" >&2
+  exit 1
+fi
+
+for cmd in apk busybox bash sudo curl wget git python3 tar gzip unzip zip ssh; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "$cmd not found" >&2
+    exit 1
+  fi
+done
+
+if [ ! -x /usr/sbin/sshd ]; then
+  echo "sshd not found" >&2
+  exit 1
+fi
+
+for pkg in gcompat libstdc++ libgcc openssh bash sudo; do
+  if ! apk info -e "$pkg" >/dev/null 2>&1; then
+    echo "$pkg package not installed" >&2
+    exit 1
+  fi
+done
+
+sshd_config_dump() {
+  if [ "$(id -u)" -eq 0 ]; then
+    /usr/sbin/sshd -T
+    return
+  fi
+  if command -v sudo >/dev/null 2>&1 && sudo -n true >/dev/null 2>&1; then
+    sudo /usr/sbin/sshd -T
+    return
+  fi
+  if command -v ssh-keygen >/dev/null 2>&1; then
+    tmp_dir="$(mktemp -d)"
+    trap 'rm -rf "$tmp_dir"' RETURN
+    ssh-keygen -q -t ed25519 -N "" -f "$tmp_dir/ssh_host_ed25519_key"
+    /usr/sbin/sshd -T -h "$tmp_dir/ssh_host_ed25519_key"
+    return
+  fi
+  /usr/sbin/sshd -T
+}
+
+for nologin_file in /run/nologin /etc/nologin; do
+  if [ -e "$nologin_file" ]; then
+    echo "$nologin_file blocks non-root SSH logins" >&2
+    exit 1
+  fi
+done
+
+if ! sshd_config_dump | grep -qx 'allowtcpforwarding yes'; then
+  echo "sshd AllowTcpForwarding is not enabled" >&2
+  exit 1
+fi
+
+entrypoint="$project_dir/entrypoint.sh"
+if [ ! -f "$entrypoint" ]; then
+  echo "Missing entrypoint.sh in $project_dir" >&2
+  exit 1
+fi
+
+if ! command -v bash >/dev/null 2>&1; then
+  echo "bash not found" >&2
+  exit 1
+fi
+
+( cd "$project_dir" && bash "$entrypoint" ) >/tmp/entrypoint.log 2>&1 &
+pid=$!
+sleep 3
+if ! kill -0 "$pid" >/dev/null 2>&1; then
+  echo "entrypoint exited early" >&2
+  echo "---- entrypoint log ----" >&2
+  cat /tmp/entrypoint.log >&2 || true
+  exit 1
+fi
+kill "$pid" >/dev/null 2>&1 || true
+wait "$pid" >/dev/null 2>&1 || true
+
+echo "ok"

@@ -8,6 +8,9 @@ if [ -f /etc/os-release ]; then
   # shellcheck source=/dev/null
   . /etc/os-release
   case "${ID:-}" in
+    alpine)
+      "$SOURCE_DIR/configure-alpine-repositories.sh"
+      ;;
     debian)
       "$SOURCE_DIR/configure-debian-source.sh"
       ;;
