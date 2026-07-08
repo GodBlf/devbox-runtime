@@ -58,15 +58,18 @@ runs:
         # Create the image name components
         image_name="${runtime_name}-${runtime_version}"
         repo_type="${{ inputs.image_repo_type }}"
+        ghcr_registry="${{ fromJson(inputs.ghcr_credentials).registry }}"
+        ghcr_owner="${{ fromJson(inputs.ghcr_credentials).username }}"
+        ghcr_owner="${ghcr_owner,,}"
 
         # Generate ghcr.io image name.
         if [ "$repo_type" = "base-images" ]; then
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-base-images/${image_name}:${tag}"
+          ghcr_image_name="${ghcr_registry}/${ghcr_owner}/devbox-base-images/${image_name}:${tag}"
         elif [ "$repo_type" = "runtime-images" ]; then
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox-runtime-images/${image_name}:${tag}"
+          ghcr_image_name="${ghcr_registry}/${ghcr_owner}/devbox-runtime-images/${image_name}:${tag}"
         elif [ "$repo_type" = "none" ]; then
           # Legacy/default shared repository naming.
-          ghcr_image_name="${{ fromJson(inputs.ghcr_credentials).registry }}/${{ fromJson(inputs.ghcr_credentials).username }}/devbox/${image_name}:${tag}"
+          ghcr_image_name="${ghcr_registry}/${ghcr_owner}/devbox/${image_name}:${tag}"
         else
           echo "Unsupported image_repo_type: $repo_type" >&2
           exit 1
