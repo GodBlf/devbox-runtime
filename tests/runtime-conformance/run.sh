@@ -475,13 +475,22 @@ check_python_runtime() {
 }
 
 check_java_runtime() {
+  local expected_version="$1"
   assert_command java
   assert_command javac
-  javac --version | grep 'javac 17' >/dev/null || fail "javac is not 17"
-  java -version 2>&1 | grep '17' >/dev/null || fail "java is not 17"
+  javac -version 2>&1 | grep "javac $expected_version" >/dev/null || fail "javac is not $expected_version"
+  java -version 2>&1 | grep "$expected_version" >/dev/null || fail "java is not $expected_version"
   java -XshowSettings:properties -version 2>&1 | grep 'file.encoding = UTF-8' >/dev/null || fail "Java file.encoding is not UTF-8"
   assert_file "$PROJECT_DIR/HelloWorld.java"
   require_zh_maven_mirror
+}
+
+check_java8_runtime() {
+  check_java_runtime 1.8.0_492
+  assert_command mvn
+  java -version 2>&1 | grep 'Temurin' >/dev/null || fail "Java vendor is not Temurin"
+  mvn -version | grep 'Apache Maven 3.9.16' >/dev/null || fail "Maven is not 3.9.16"
+  mvn -version | grep 'Java version: 1.8.0_492' >/dev/null || fail "Maven is not using Java 1.8.0_492"
 }
 
 check_c_runtime() {
@@ -526,7 +535,7 @@ check_nginx_runtime() {
 }
 
 check_java_nginx_private_runtime() {
-  check_java_runtime
+  check_java_runtime 17
   check_nginx_runtime
   assert_file "$PROJECT_DIR/nginx.conf"
 }
@@ -625,7 +634,10 @@ check_runtime_specifics() {
       check_go_runtime 1.23.0
       ;;
     languages/java/openjdk17)
-      check_java_runtime
+      check_java_runtime 17
+      ;;
+    languages/java/openjdk8)
+      check_java8_runtime
       ;;
     languages/java/openjdk17-nginx-private)
       check_java_nginx_private_runtime
